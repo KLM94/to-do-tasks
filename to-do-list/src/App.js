@@ -1,32 +1,14 @@
 import React from "react";
 import "./App.css";
-function List(props) {
-  return (
-    <ul>
-      {props.tasks.map(task => {
-        return (
-          <li
-            className={task.isChecked === true ? "strikeThrough" : null}
-            key={task.task}
-          >
-            {task.task}
-            <button
-              className="box"
-              onClick={() => props.completedTask(task.task)}
-            ></button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-// task.isChecked === true ? className="strikeThrough" : null
+import List from "./Components/List";
+import AddTask from "./Components/AddTask";
+
 class App extends React.Component {
   state = {
     tasks: [
-      { task: "Lecture @ 11.30", isChecked: true },
+      { task: "Lecture @ 11.30", isChecked: false },
       { task: "Lunch @ 13.00", isChecked: false },
-      { task: "Sprint 14.00 - 17.00", isChecked: true }
+      { task: "Sprint 14.00 - 17.00", isChecked: false }
     ]
   };
 
@@ -35,17 +17,27 @@ class App extends React.Component {
       <div className="App">
         <header className="App-header">
           <h1>To Do List:</h1>
-          <List tasks={this.state.tasks} completedTask={this.completedTask} />
+          <List
+            tasks={this.state.tasks}
+            completedTask={this.completedTask}
+            deleteTask={this.deleteTask}
+          />
+          <AddTask addNewTask={this.addNewTask} />
         </header>
       </div>
     );
   }
 
+  addNewTask = addNewTask => {
+    this.setState(currentState => {
+      return { tasks: [addNewTask, ...currentState.tasks] };
+    });
+  };
+
   // want to pass an individual task therefore need to wrap it in an anonymous function to pass it as an argument above
   // would need to pass it event if needed to use prevent default
   completedTask = clickedTask => {
     this.setState(currentState => {
-      console.log(currentState, clickedTask);
       const newTasks = currentState.tasks.map(task => {
         if (clickedTask === task.task) {
           const copiedTask = { ...task };
@@ -54,11 +46,19 @@ class App extends React.Component {
         }
         return task;
       });
-      console.log(newTasks);
+
       return { tasks: newTasks };
       // if clickedtask is equal to task in the current state array -> flip isChecked
       // return { isChecked: !currentState.tasks.clickedTask.isChecked };
     });
+  };
+
+  deleteTask = deletedTask => {
+    const { tasks } = this.state;
+
+    const filteredTasks = tasks.filter(task => task !== deletedTask);
+    console.log({ tasks: filteredTasks });
+    this.setState({ tasks: filteredTasks });
   };
 }
 
